@@ -5,6 +5,8 @@ import "./App.css";
 import { ReactComponent as Shorts } from "./assets/shorts.svg";
 import { ReactComponent as Subscriptions } from "./assets/subscriptions.svg";
 import { ReactComponent as Library } from "./assets/library.svg";
+import { ReactComponent as History } from "./assets/history.svg";
+import { ReactComponent as WatchLater } from "./assets/watchLater.svg";
 const API = 'AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q';
 const channelId = 'UCxr2u-kD8QYntD9WzC_7QXg';
 let fetchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`
@@ -65,12 +67,12 @@ function App() {
               <button className="flex-auto text-left">Library</button>
             </div>
             <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
-              <Shorts className="h-[24px] w-[24px] mr-[24px]" />
-              <button className="flex-auto text-left">Shorts</button>
+              <History className="h-[24px] w-[24px] mr-[24px]" />
+              <button className="flex-auto text-left">History</button>
             </div>
             <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
-              <Subscriptions className="h-[24px] w-[24px] mr-[24px]" />
-              <button className="flex-auto text-left">Subscriptions</button>
+              <WatchLater className="h-[24px] w-[24px] mr-[24px]" />
+              <button className="flex-auto text-left ">Watch later</button>
             </div>
           </div>
         </div>
