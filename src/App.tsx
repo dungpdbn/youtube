@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { google } from 'googleapis';
+import { google } from "googleapis";
 import menuBar from "./assets/menu-bar.png";
 import youtubeLogo from "./assets/YouTube-Logo-PNG7.png";
+import jwt_decode from "jwt-decode";
 import "./App.css";
 import { ReactComponent as Shorts } from "./assets/shorts.svg";
 import { ReactComponent as Subscriptions } from "./assets/subscriptions.svg";
@@ -9,17 +10,14 @@ import { ReactComponent as Library } from "./assets/library.svg";
 import { ReactComponent as History } from "./assets/history.svg";
 import { ReactComponent as WatchLater } from "./assets/watchLater.svg";
 import { ReactComponent as SignIn } from "./assets/signIn.svg";
-const API = 'AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q';
-const channelId = 'UCxr2u-kD8QYntD9WzC_7QXg';
-let fetchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`
+import { GoogleLogin } from "@react-oauth/google";
+const API = "AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q";
+const channelId = "UCxr2u-kD8QYntD9WzC_7QXg";
+let fetchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
+
 function App() {
   const [count, setCount] = useState(0);
-  useEffect(() => {
-    fetch(fetchUrl).then((response) => response.json()).then((resJson) => {
-      console.log(resJson);
-    });
-    
-  }, [])
+  useEffect(() => {}, []);
   return (
     <>
       <div className="flex h-[56px] px-[16px] justify-between">
@@ -39,10 +37,26 @@ function App() {
           <button className="w-[40px] h-[40px] flex items-center justify-center">
             <span className="material-symbols-outlined">notifications</span>
           </button>
-          <a className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px]">
-            <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]"/>
+          <a
+            id="signIn"
+            className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px]"
+          >
+            <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]" />
             <span className="">Sign in</span>
           </a>
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              console.log(credentialResponse);
+              let token = credentialResponse.credential;
+              if (token !== undefined) {
+                let decoded:string = jwt_decode(token);
+                console.log(decoded);
+              }
+            }}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+          />
         </div>
       </div>
       <div className="flex">
