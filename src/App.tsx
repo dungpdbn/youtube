@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { google } from 'googleapis';
 import menuBar from "./assets/menu-bar.png";
 import youtubeLogo from "./assets/YouTube-Logo-PNG7.png";
 import "./App.css";
@@ -7,10 +8,10 @@ import { ReactComponent as Subscriptions } from "./assets/subscriptions.svg";
 import { ReactComponent as Library } from "./assets/library.svg";
 import { ReactComponent as History } from "./assets/history.svg";
 import { ReactComponent as WatchLater } from "./assets/watchLater.svg";
+import { ReactComponent as SignIn } from "./assets/signIn.svg";
 const API = 'AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q';
 const channelId = 'UCxr2u-kD8QYntD9WzC_7QXg';
 let fetchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`
-
 function App() {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -38,9 +39,10 @@ function App() {
           <button className="w-[40px] h-[40px] flex items-center justify-center">
             <span className="material-symbols-outlined">notifications</span>
           </button>
-          <button className="w-[40px] h-[40px] flex items-center justify-center">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
+          <a className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px]">
+            <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]"/>
+            <span className="">Sign in</span>
+          </a>
         </div>
       </div>
       <div className="flex">
