@@ -13,35 +13,29 @@ import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 const API = "AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q";
 const channelId = "UCxr2u-kD8QYntD9WzC_7QXg";
 let fetchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
-
+let client;
 function App() {
-  const [count, setCount] = useState(0);
-  const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => console.log(tokenResponse),
-    scope: "https://www.googleapis.com/auth/youtube.readonly",
-  });
-  function handleCallbackResponse(response) {
-    console.log("Encoded JWT ID token: " + response.credential);
-    let userObject = jwt_decode(response.credential);
-    console.log(userObject);
-    google.accounts.oauth2.initTokenClient({
-      client_id: '324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com',
-      scope: "https://www.googleapis.com/auth/youtube",
-      callback: (tokenResponse) => {
-        console.log('tokenResspoifd '+ tokenResponse);
-      },
-    });
-  }
+  const [token, setToken] = useState("");
   useEffect(() => {
-    google.accounts.id.initialize({
+    client = google.accounts.oauth2.initTokenClient({
       client_id:
         "324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com",
-      callback: handleCallbackResponse,
+      scope: "https://www.googleapis.com/auth/youtube  email",
+      callback: (tokenResponse) => {
+        console.log(tokenResponse);
+        setToken(tokenResponse.access_token);
+      },
     });
-    google.accounts.id.renderButton(
-      document.getElementById("signInDiv"),
-      {theme: "outline", size: "large"})
   }, []);
+  function getToken() {
+    client.requestAccessToken();
+  }
+  function revokeToken() {
+    google.accounts.oauth2.revoke(token, () => {
+      console.log("access token revoked");
+      console.log(token);
+    });
+  }
   return (
     <>
       <div className="flex h-[56px] px-[16px] justify-between">
@@ -58,18 +52,20 @@ function App() {
           </button>
         </div>
         <div className="flex items-center">
-          {/* <button className="w-[40px] h-[40px] flex items-center justify-center">
+          <button className="w-[40px] h-[40px] flex items-center justify-center">
             <span className="material-symbols-outlined">notifications</span>
           </button>
-          <a
+          {token ? <p>Has token</p> : <a
             id="signIn"
             className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px]"
-            onClick={() => login()}
+            onClick={() => {
+              getToken();
+            }}
           >
             <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]" />
             <span className="">Sign in</span>
-          </a> */}
-          <div id="signInDiv"></div>
+          </a>}
+          
         </div>
       </div>
       <div className="flex">

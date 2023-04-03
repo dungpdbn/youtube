@@ -13,9 +13,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + React + TS</title>
   <script src="https://accounts.google.com/gsi/client" onload="initClient()" async defer></script>
-</head>
-
-<body>
   <script>
     var client;
     var access_token;
@@ -23,10 +20,11 @@
     function initClient() {
       client = google.accounts.oauth2.initTokenClient({
         client_id: '324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com',
-        scope: "https://www.googleapis.com/auth/youtube",
+        scope: "https://www.googleapis.com/auth/youtube \ email",
         callback: (tokenResponse) => {
+          console.log(tokenResponse);
           access_token = tokenResponse.access_token;
-          console.log(access_token);
+          console.log(access_token.expires_at);
         },
       });
     }
@@ -39,17 +37,9 @@
         console.log(access_token);
       });
     }
-    <!-- function loadCalendar() {
-      var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet%2CcontentDetails&mine=true&key=AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-        xhr.send();
-    } -->
   </script>
-  <h1>Google Identity Services Authorization Token model</h1>
-  <button onclick="getToken();">Get access token</button><br><br>
-  <button onclick="loadCalendar();">Load Calendar</button><br><br>
-  <button onclick="revokeToken();">Revoke token</button>
+</head>
+<body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
