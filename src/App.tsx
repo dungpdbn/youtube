@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import menuBar from "./assets/menu-bar.png";
 import youtubeLogo from "./assets/YouTube-Logo-PNG7.png";
 import jwt_decode from "jwt-decode";
-import { useGoogleLogin } from "@react-oauth/google";
 import "./App.css";
 import { ReactComponent as Shorts } from "./assets/shorts.svg";
 import { ReactComponent as Subscriptions } from "./assets/subscriptions.svg";
@@ -16,8 +15,31 @@ const channelId = "UCxr2u-kD8QYntD9WzC_7QXg";
 let fetchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
 let client;
 function App() {
-  const [count, setCount] = useState(0);
-  useEffect(() => {}, []);
+  const [token, setToken] = useState("");
+  useEffect(() => {
+    client = google.accounts.oauth2.initTokenClient({
+      client_id:
+        "324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com",
+      scope: "https://www.googleapis.com/auth/youtube",
+      callback: (tokenResponse) => {
+        console.log(tokenResponse);
+        setToken(tokenResponse.access_token);
+        if (tokenResponse && tokenResponse.access_token) {
+          gapi.client.setApiKey('AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q');
+          gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest");
+        }
+      },
+    });
+  }, []);
+  function getToken() {
+    client.requestAccessToken();
+  }
+  function revokeToken() {
+    google.accounts.oauth2.revoke(token, () => {
+      console.log("access token revoked");
+      console.log(token);
+    });
+  }
   return (
     <>
       <div className="flex h-[56px] px-[16px] justify-between">
@@ -40,34 +62,18 @@ function App() {
           {token ? <p>Has token</p> : <a
             id="signIn"
             className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px]"
+            onClick={() => {
+              getToken();
+            }}
           >
             <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]" />
             <span className="">Sign in</span>
-          </a>
-          <GoogleLogin
-            onSuccess={(credentialResponse) => {
-              console.log(credentialResponse);
-              let token = credentialResponse.credential;
-              if (token !== undefined) {
-                let decoded:string = jwt_decode(token);
-                console.log(decoded);
-              }
-            }}
-            onError={() => {
-              console.log("Login Failed");
-            }}
-          />
+          </a>}
+          
         </div>
       </div>
       <div className="flex">
         <div className="flex flex-col">
-          <div className="px-[12px] pt-[12px]">
-            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] bg-[#0000000d] px-[12px]">
-              <span className="material-symbols-outlined h-[24px] w-[24px] mr-[24px]">
-                home
-              </span>
-              <button className="flex-auto text-left">Home</button>
-            </div>
             <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
               <Shorts className="h-[24px] w-[24px] mr-[24px]" />
               <button className="flex-auto text-left">Shorts</button>
@@ -76,7 +82,6 @@ function App() {
               <Subscriptions className="h-[24px] w-[24px] mr-[24px]" />
               <button className="flex-auto text-left">Subscriptions</button>
             </div>
-          </div>
           <div className="px-[12px] border-t mt-[12px] pt-[12px]">
             <div className="flex w-[204px] rounded-[10px] items-center h-[40px] bg-[#0000000d] px-[12px]">
               <Library className="h-[24px] w-[24px] mr-[24px]" />
