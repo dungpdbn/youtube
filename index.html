@@ -12,31 +12,33 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + React + TS</title>
-  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client" onload="initClient()" async defer></script>
   <script>
-    function start() {
-      // 2. Initialize the JavaScript client library.
-      gapi.client.init({
-        'apiKey': 'AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q',
-        // clientId and scope are optional if auth is not required.
-        'clientId': '324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com',
-        'scope': 'profile',
-      }).then(function() {
-        // 3. Initialize and make the API request.
-        return gapi.client.request({
-          'path': 'https://people.googleapis.com/v1/people/me?requestMask.includeField=person.names',
-        })
-      }).then(function(response) {
-        console.log(response.result);
-      }, function(reason) {
-        console.log('Error: ' + reason.result.error.message);
-      });
-    };
-    // 1. Load the JavaScript client library.
-    gapi.load('client', start);
-    </script>
-</head>
+    var client;
+    var access_token;
 
+    function initClient() {
+      client = google.accounts.oauth2.initTokenClient({
+        client_id: '324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com',
+        scope: "https://www.googleapis.com/auth/youtube \ email",
+        callback: (tokenResponse) => {
+          console.log(tokenResponse);
+          access_token = tokenResponse.access_token;
+          console.log(access_token.expires_at);
+        },
+      });
+    }
+    function getToken() {
+      client.requestAccessToken();
+    }
+    function revokeToken() {
+      google.accounts.oauth2.revoke(access_token, () => { 
+        console.log('access token revoked');
+        console.log(access_token);
+      });
+    }
+  </script>
+</head>
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
