@@ -3,30 +3,59 @@ import menuBar from "./assets/menu-bar.png";
 import youtubeLogo from "./assets/YouTube-Logo-PNG7.png";
 import jwt_decode from "jwt-decode";
 import "./App.css";
+import Subscription from "./Subscription";
 import { ReactComponent as Shorts } from "./assets/shorts.svg";
 import { ReactComponent as Subscriptions } from "./assets/subscriptions.svg";
 import { ReactComponent as Library } from "./assets/library.svg";
 import { ReactComponent as History } from "./assets/history.svg";
 import { ReactComponent as WatchLater } from "./assets/watchLater.svg";
 import { ReactComponent as SignIn } from "./assets/signIn.svg";
+import { ReactComponent as Home } from "./assets/home.svg";
 import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
-const API = "AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q";
-const channelId = "UCxr2u-kD8QYntD9WzC_7QXg";
-let fetchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
+const apiKey = "AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q";
 let client;
 function App() {
   const [token, setToken] = useState("");
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [url, setUrl] = useState("");
   useEffect(() => {
     client = google.accounts.oauth2.initTokenClient({
       client_id:
         "324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com",
-      scope: "https://www.googleapis.com/auth/youtube",
+      scope: "https://www.googleapis.com/auth/youtube  profile",
       callback: (tokenResponse) => {
-        console.log(tokenResponse);
         setToken(tokenResponse.access_token);
-        if (tokenResponse && tokenResponse.access_token) {
-          gapi.client.setApiKey('AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q');
-          gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest");
+        if (tokenResponse.access_token) {
+          fetch(
+            `https://people.googleapis.com/v1/people/me?personFields=photos&access_token={tokenResponse.access_token}`,
+            {
+              headers: {
+                Authorization: `Bearer ${tokenResponse.access_token}`,
+                Accept: "application/json",
+              },
+            }
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              setUrl(data.photos[0].url);
+            })
+            .catch((error) => console.error(error));
+          fetch(
+            `https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet%2CcontentDetails&maxResults=7&mine=true&key={apiKey}`,
+            {
+              headers: {
+                Authorization: `Bearer ${tokenResponse.access_token}`,
+                Accept: "application/json",
+              },
+            }
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              setSubscriptions(data.items);
+            })
+            .catch((error) => console.error(error));
         }
       },
     });
@@ -59,30 +88,39 @@ function App() {
           <button className="w-[40px] h-[40px] flex items-center justify-center">
             <span className="material-symbols-outlined">notifications</span>
           </button>
-          {token ? <p>Has token</p> : <a
-            id="signIn"
-            className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px]"
-            onClick={() => {
-              getToken();
-            }}
-          >
-            <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]" />
-            <span className="">Sign in</span>
-          </a>}
-          
+          {url ? (
+            <button>
+              <img src={url} alt="" className="h-[32px] w-[32px]" />
+            </button>
+          ) : (
+            <a
+              id="signIn"
+              className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px]"
+              onClick={() => {
+                getToken();
+              }}
+            >
+              <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]" />
+              <span className="">Sign in</span>
+            </a>
+          )}
         </div>
       </div>
       <div className="flex">
-        <div className="flex flex-col">
-            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
-              <Shorts className="h-[24px] w-[24px] mr-[24px]" />
-              <button className="flex-auto text-left">Shorts</button>
-            </div>
-            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
-              <Subscriptions className="h-[24px] w-[24px] mr-[24px]" />
-              <button className="flex-auto text-left">Subscriptions</button>
-            </div>
-          <div className="px-[12px] border-t mt-[12px] pt-[12px]">
+        <div className="flex flex-col p-[12px]">
+          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+            <Home className="h-[24px] w-[24px] mr-[24px]" />
+            <button className="flex-auto text-left">Home</button>
+          </div>
+          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+            <Shorts className="h-[24px] w-[24px] mr-[24px]" />
+            <button className="flex-auto text-left">Shorts</button>
+          </div>
+          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+            <Subscriptions className="h-[24px] w-[24px] mr-[24px]" />
+            <button className="flex-auto text-left">Subscriptions</button>
+          </div>
+          <div className="border-t mt-[12px] pt-[12px]">
             <div className="flex w-[204px] rounded-[10px] items-center h-[40px] bg-[#0000000d] px-[12px]">
               <Library className="h-[24px] w-[24px] mr-[24px]" />
               <button className="flex-auto text-left">Library</button>
@@ -95,6 +133,11 @@ function App() {
               <WatchLater className="h-[24px] w-[24px] mr-[24px]" />
               <button className="flex-auto text-left ">Watch later</button>
             </div>
+          </div>
+          <div className="border-t mt-[12px] pt-[12px]">
+            <h3 className="px-[12px] pt-[6px] pb-[4px]">Subscriptions</h3>
+            {subscriptions && subscriptions.map(subscription => 
+              <Subscription key={subscription.id} title={subscription.snippet.title} image={subscription.snippet.thumbnails.high.url} newItem={subscription.contentDetails.newItemCount}/>)}
           </div>
         </div>
         <div className="flex-auto border"></div>
