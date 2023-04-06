@@ -12,12 +12,14 @@ import { ReactComponent as WatchLater } from "./assets/watchLater.svg";
 import { ReactComponent as SignIn } from "./assets/signIn.svg";
 import { ReactComponent as Home } from "./assets/home.svg";
 import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import Video from "./Video";
 const apiKey = "AIzaSyC3eMtziQLUNNR2fvlHpyvhqG4-FjRL_0Q";
 let client;
 function App() {
   const [token, setToken] = useState("");
   const [subscriptions, setSubscriptions] = useState([]);
   const [url, setUrl] = useState("");
+  const [videos, setVideos] = useState([]);
   useEffect(() => {
     client = google.accounts.oauth2.initTokenClient({
       client_id:
@@ -27,7 +29,7 @@ function App() {
         setToken(tokenResponse.access_token);
         if (tokenResponse.access_token) {
           fetch(
-            `https://people.googleapis.com/v1/people/me?personFields=photos&access_token={tokenResponse.access_token}`,
+            `https://people.googleapis.com/v1/people/me?personFields=photos&access_token=${tokenResponse.access_token}`,
             {
               headers: {
                 Authorization: `Bearer ${tokenResponse.access_token}`,
@@ -42,7 +44,7 @@ function App() {
             })
             .catch((error) => console.error(error));
           fetch(
-            `https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet%2CcontentDetails&maxResults=7&mine=true&key={apiKey}`,
+            `https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet%2CcontentDetails&maxResults=7&mine=true&key=${apiKey}`,
             {
               headers: {
                 Authorization: `Bearer ${tokenResponse.access_token}`,
@@ -59,6 +61,20 @@ function App() {
         }
       },
     });
+    fetch(
+      `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=7&regionCode=VN&key=${apiKey}`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setVideos(data.items);
+      })
+      .catch((error) => console.error(error));
   }, []);
   function getToken() {
     client.requestAccessToken();
@@ -90,7 +106,7 @@ function App() {
           </button>
           {url ? (
             <button>
-              <img src={url} alt="" className="h-[32px] w-[32px]" />
+              <img src={url} alt="" className="h-[32px] w-[32px] rounded-full" />
             </button>
           ) : (
             <a
@@ -136,11 +152,21 @@ function App() {
           </div>
           <div className="border-t mt-[12px] pt-[12px]">
             <h3 className="px-[12px] pt-[6px] pb-[4px]">Subscriptions</h3>
-            {subscriptions && subscriptions.map(subscription => 
-              <Subscription key={subscription.id} title={subscription.snippet.title} image={subscription.snippet.thumbnails.high.url} newItem={subscription.contentDetails.newItemCount}/>)}
+            {subscriptions &&
+              subscriptions.map((subscription) => (
+                <Subscription
+                  key={subscription.id}
+                  title={subscription.snippet.title}
+                  image={subscription.snippet.thumbnails.high.url}
+                  newItem={subscription.contentDetails.newItemCount}
+                />
+              ))}
           </div>
         </div>
-        <div className="flex-auto border"></div>
+        <div className="flex-auto border flex-wrap flex">
+          {videos && videos.map(video => 
+          <Video video={video} key={video.id}/>)}
+        </div>
       </div>
     </>
   );
