@@ -62,7 +62,7 @@ function App() {
       },
     });
     fetch(
-      `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=7&regionCode=VN&key=${apiKey}`,
+      `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&chart=mostPopular&maxResults=9&regionCode=VN&key=${apiKey}`,
       {
         headers: {
           Accept: "application/json",
@@ -106,7 +106,11 @@ function App() {
           </button>
           {url ? (
             <button>
-              <img src={url} alt="" className="h-[32px] w-[32px] rounded-full" />
+              <img
+                src={url}
+                alt=""
+                className="h-[32px] w-[32px] rounded-full"
+              />
             </button>
           ) : (
             <a
@@ -124,35 +128,35 @@ function App() {
       </div>
       <div className="flex">
         <div className="flex flex-col p-[12px]">
-          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] hover:bg-[#0000000d] px-[12px]">
             <Home className="h-[24px] w-[24px] mr-[24px]" />
             <button className="flex-auto text-left">Home</button>
           </div>
-          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] hover:bg-[#0000000d] px-[12px]">
             <Shorts className="h-[24px] w-[24px] mr-[24px]" />
             <button className="flex-auto text-left">Shorts</button>
           </div>
-          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+          <div className="flex w-[204px] rounded-[10px] items-center h-[40px] hover:bg-[#0000000d] px-[12px]">
             <Subscriptions className="h-[24px] w-[24px] mr-[24px]" />
             <button className="flex-auto text-left">Subscriptions</button>
           </div>
           <div className="border-t mt-[12px] pt-[12px]">
-            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] bg-[#0000000d] px-[12px]">
+            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] hover:bg-[#0000000d] px-[12px]">
               <Library className="h-[24px] w-[24px] mr-[24px]" />
               <button className="flex-auto text-left">Library</button>
             </div>
-            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] hover:bg-[#0000000d] px-[12px]">
               <History className="h-[24px] w-[24px] mr-[24px]" />
               <button className="flex-auto text-left">History</button>
             </div>
-            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] px-[12px]">
+            <div className="flex w-[204px] rounded-[10px] items-center h-[40px] hover:bg-[#0000000d] px-[12px]">
               <WatchLater className="h-[24px] w-[24px] mr-[24px]" />
               <button className="flex-auto text-left ">Watch later</button>
             </div>
           </div>
-          <div className="border-t mt-[12px] pt-[12px]">
+          <div className="border-t mt-[12px] pt-[12px] flex flex-col">
             <h3 className="px-[12px] pt-[6px] pb-[4px]">Subscriptions</h3>
-            {subscriptions &&
+            {subscriptions.length > 0 ? (
               subscriptions.map((subscription) => (
                 <Subscription
                   key={subscription.id}
@@ -160,12 +164,24 @@ function App() {
                   image={subscription.snippet.thumbnails.high.url}
                   newItem={subscription.contentDetails.newItemCount}
                 />
-              ))}
+              ))
+            ) : (
+              <a
+                id="signIn"
+                className="hover:bg-[#def1ff] cursor-pointer flex items-center justify-center px-[15px] border h-[36px] text-[#065fd4] rounded-[18px] self-center"
+                onClick={() => {
+                  getToken();
+                }}
+              >
+                <SignIn className="h-[24px] w-[24px] mr-[6px] ml-[-6px] text-[#065fd4]" />
+                <span className="">Sign in</span>
+              </a>
+            )}
           </div>
         </div>
-        <div className="flex-auto border flex-wrap flex">
-          {videos && videos.map(video => 
-          <Video video={video} key={video.id}/>)}
+        <div className="flex-auto flex-wrap flex mt-[20px]">
+          {videos &&
+            videos.map((video) => <Video video={video} key={video.id} />)}
         </div>
       </div>
     </>
