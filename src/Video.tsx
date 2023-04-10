@@ -4,10 +4,11 @@ export default function Video({ video }) {
   const [channel, setChannel] = useState({});
   useEffect(() => {
     fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${video.channelId}`
+      `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${video.snippet.channelId}&key=${import.meta.env.VITE_API_KEY}`
     )
       .then((res) => res.json())
       .then((data) => {
+        console.log(data.items[0]);
         setChannel(data.items[0]);
       })
       .catch((err) => console.log(err));
@@ -21,16 +22,16 @@ export default function Video({ video }) {
       />
       <div className="flex items-start">
         <img
-          src="https://yt3.ggpht.com/ytc/AL5GRJWGnyS7RC2tFc0GupOnLgKcDrSm9f0Cghh3hjx6SA=s68-c-k-c0x00ffffff-no-rj"
+          src={channel.snippet && channel.snippet.thumbnails.high.url}
           alt=""
           className="w-[48px] mt-[12px] mr-[12px] rounded-full"
         />
         <div className="flex flex-col">
           <h3 className="line-clamp-2 mt-[12px] mb-[4px]">
-            {video.snippet.localized.title}
+            {video.snippet.title}
           </h3>
           <a href="" className="line-clamp-1">
-            {channel.snippet.title}
+            {channel.snippet && channel.snippet.title}
           </a>
           <div className="flex">
             <p>10K views</p>
