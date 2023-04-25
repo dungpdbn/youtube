@@ -3,6 +3,7 @@ import menuBar from "./assets/menu-bar.png";
 import youtubeLogo from "./assets/YouTube-Logo-PNG7.png";
 import jwt_decode from "jwt-decode";
 import "./App.css";
+import { Outlet, Form } from "react-router-dom";
 import Subscription from "./Subscription";
 import { ReactComponent as Shorts } from "./assets/shorts.svg";
 import { ReactComponent as Subscriptions } from "./assets/subscriptions.svg";
@@ -20,45 +21,45 @@ function App() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [url, setUrl] = useState("");
   const [videos, setVideos] = useState([]);
+  const [query, setQuery] = useState("");
   useEffect(() => {
     client = google.accounts.oauth2.initTokenClient({
       client_id:
         "324193625755-2e0j68au5ujoqasn56f0qvmt2saac50r.apps.googleusercontent.com",
-      scope: "https://www.googleapis.com/auth/youtube  profile",
+      scope: "https://www.googleapis.com/auth/youtube profile",
       callback: (tokenResponse) => {
         setToken(tokenResponse.access_token);
-        if (tokenResponse.access_token) {
-          fetch(
-            `https://people.googleapis.com/v1/people/me?personFields=photos&access_token=${tokenResponse.access_token}`,
-            {
-              headers: {
-                Authorization: `Bearer ${tokenResponse.access_token}`,
-                Accept: "application/json",
-              },
-            }
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              console.log(data);
-              setUrl(data.photos[0].url);
-            })
-            .catch((error) => console.error(error));
-          fetch(
-            `https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet%2CcontentDetails&maxResults=7&mine=true&key=${apiKey}`,
-            {
-              headers: {
-                Authorization: `Bearer ${tokenResponse.access_token}`,
-                Accept: "application/json",
-              },
-            }
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              console.log(data);
-              setSubscriptions(data.items);
-            })
-            .catch((error) => console.error(error));
-        }
+        localStorage.setItem("access_token", tokenResponse.access_token);
+        fetch(
+          `https://people.googleapis.com/v1/people/me?personFields=photos&access_token=${tokenResponse.access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`,
+              Accept: "application/json",
+            },
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            setUrl(data.photos[0].url);
+          })
+          .catch((error) => console.error(error));
+        fetch(
+          `https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet%2CcontentDetails&maxResults=7&mine=true&key=${apiKey}`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`,
+              Accept: "application/json",
+            },
+          }
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            setSubscriptions(data.items);
+          })
+          .catch((error) => console.error(error));
       },
     });
     fetch(
@@ -85,6 +86,24 @@ function App() {
       console.log(token);
     });
   }
+
+  function search(term) {
+    fetch(
+      `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${term}&key=${
+        import.meta.env.VITE_API_KEY
+      }`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => console.error(error));
+  }
   return (
     <>
       <div className="flex h-[56px] px-[16px] justify-between">
@@ -93,10 +112,22 @@ function App() {
           <img src={youtubeLogo} className="max-h-[56px] m-[14px]" />
         </div>
         <div className="flex items-center flex-[0_1_536px]">
-          <form className="flex flex-auto items-center h-[40px] border border-solid pl-6 border-[#ccc] border-r-0 rounded-tl-[40px] rounded-bl-[40px]">
-            <input className="focus:outline-none w-full" />
-          </form>
-          <button className="m-0 h-[40px] w-[64px] border border-solid border-[#d3d3d3] bg-[#f8f8f8] rounded-tr-[40px] rounded-br-[40px]">
+          <Form className="flex flex-auto items-center h-[40px] border border-solid pl-6 border-[#ccc] border-r-0 rounded-tl-[40px] rounded-bl-[40px]">
+            <input
+              placeholder="Search"
+              type="search"
+              className="focus:outline-none w-full cursor-text"
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
+            />
+          </Form>
+          <button
+            className="m-0 h-[40px] w-[64px] border border-solid border-[#d3d3d3] bg-[#f8f8f8] rounded-tr-[40px] rounded-br-[40px]"
+            onClick={() => {
+              search(query);
+            }}
+          >
             <i className="fa fa-search"></i>
           </button>
         </div>
@@ -182,6 +213,7 @@ function App() {
         <div className="flex-auto flex-wrap flex mt-[20px]">
           {videos &&
             videos.map((video) => <Video video={video} key={video.id} />)}
+          <Outlet />
         </div>
       </div>
     </>

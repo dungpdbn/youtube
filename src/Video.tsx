@@ -16,9 +16,9 @@ export default function Video({ video }) {
   return (
     <div className="max-w-[27%] w-full min-w-[300px] flex flex-col mx-[8px] mb-[40px]">
       <img
-        src={video.snippet.thumbnails.maxres.url}
+        src={video.snippet.thumbnails.maxres ? video.snippet.thumbnails.maxres.url : video.snippet.thumbnails.high.url}
         alt=""
-        className="max-w-[360px] w-full rounded-[12px]"
+        className="max-w-[360px] w-full rounded-[12px] max-h-[200px]"
       />
       <div className="flex items-start">
         <img
